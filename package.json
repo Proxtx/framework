@@ -1,0 +1,24 @@
+{
+  "name": "framework",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "test": "nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Proxtx/framework.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Proxtx/framework/issues"
+  },
+  "homepage": "https://github.com/Proxtx/framework#readme",
+  "dependencies": {
+    "@proxtx/combine": "^1.0.1",
+    "express": "^4.17.1"
+  }
+}
