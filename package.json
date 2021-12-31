@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/Proxtx/framework#readme",
   "dependencies": {
-    "@proxtx/combine": "^1.0.1",
+    "@proxtx/combine": "^1.0.3",
+    "@proxtx/combinesync": "^1.0.4",
+    "@proxtx/html": "^1.0.2",
     "express": "^4.17.1"
   }
 }
