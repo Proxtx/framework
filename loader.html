@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <script type="module">
+      import { build } from "/builder.js";
+      import { genModule } from "/combine.js";
+      import { genCombine } from "/request.js";
+      import { serve, genCombine as genCombineIframe } from "/iframe.js";
+      import { data, addModule } from "/server.js";
+
+      serve(data);
+      window.addModule = addModule;
+
+      window.load = async (module) => {
+        return await genCombine(
+          location.origin + "/api/",
+          "public/" + module,
+          genModule
+        );
+      };
+
+      Element.prototype.enableCombine = async function (module) {
+        if (this.tagName != "IFRAME") return;
+        if (this.contentDocument.readyState != "complete") {
+          await new Promise((r) =>
+            this.contentWindow.addEventListener("load", r)
+          );
+        }
+        this.combine = await genCombineIframe(
+          module,
+          genModule,
+          this.contentWindow
+        );
+        return this.combine;
+      };
+
+      let json = JSON.parse("$1");
+      let b = build(json);
+      document.removeChild(document.documentElement);
+      b.forEach((e) => {
+        try {
+          document.appendChild(e);
+        } catch (e) {
+          console.log(e);
+        }
+      });
+    </script>
+  </body>
+</html>

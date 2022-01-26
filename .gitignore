@@ -126,3 +126,7 @@ dist
 .pnp.*
 
 config.json
+test.js
+private
+public
+static
