@@ -12,6 +12,9 @@
       import { genCombine } from "/request.js";
       import { serve, genCombine as genCombineIframe } from "/iframe.js";
       import { data, addModule } from "/server.js";
+      import { cookie } from "/cookie.js";
+
+      window.cookie = cookie;
 
       serve(data);
       window.addModule = addModule;

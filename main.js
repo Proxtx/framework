@@ -63,6 +63,12 @@ export const setup = async (app, apiFolder = "public") => {
       .sendFile(process.cwd() + "/node_modules/@proxtx/combine-iframe/main.js");
   });
 
+  app.get("/cookie.js", (req, res) => {
+    res
+      .status(200)
+      .sendFile(process.cwd() + "/node_modules/@proxtx/cookie-parser/main.js");
+  });
+
   app.use("/", staticRouter);
 
   await addServerStructure(apiFolder);
