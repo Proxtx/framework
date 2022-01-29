@@ -14,6 +14,7 @@
       import { data, addModule } from "/server.js";
       import { cookie } from "/cookie.js";
 
+      cookie.default = "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
       window.cookie = cookie;
 
       serve(data);
