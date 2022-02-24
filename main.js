@@ -3,75 +3,33 @@ import process from "process";
 import fs from "fs/promises";
 import cookieParser from "cookie-parser";
 import { router as staticRouter } from "./static.js";
+import { CombineHandler } from "@proxtx/combine-ws";
 import {
   router as combineRouter,
   server as combineServer,
 } from "@proxtx/combine-rest";
+import { genModule } from "@proxtx/combine/combine.js";
 
 export const listen = async (port) => {
   const app = express();
-  await setup(app);
-  app.listen(port);
+  let result = await setup(app);
+  result.server = app.listen(port);
+  return result;
 };
 
 export const setup = async (app, apiFolder = "public") => {
   app.use(express.json());
   app.use(cookieParser());
   app.use("/api", combineRouter);
-
-  app.get("/combine.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(process.cwd() + "/node_modules/@proxtx/combine/combine.js");
-  });
-
-  app.get("/server.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(process.cwd() + "/node_modules/@proxtx/combine/server.js");
-  });
-
-  app.get("/compare.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(process.cwd() + "/node_modules/@proxtx/compare/main.js");
-  });
-
-  app.get("/sync.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(process.cwd() + "/node_modules/@proxtx/combinesync/client.js");
-  });
-
-  app.get("/builder.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(process.cwd() + "/node_modules/@proxtx/html/builder.js");
-  });
-
-  app.get("/request.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(
-        process.cwd() + "/node_modules/@proxtx/combine-rest/request.js"
-      );
-  });
-
-  app.get("/iframe.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(process.cwd() + "/node_modules/@proxtx/combine-iframe/main.js");
-  });
-
-  app.get("/cookie.js", (req, res) => {
-    res
-      .status(200)
-      .sendFile(process.cwd() + "/node_modules/@proxtx/cookie-parser/main.js");
-  });
-
+  app.use("/modules", express.static("node_modules/@proxtx"));
   app.use("/", staticRouter);
-
   await addServerStructure(apiFolder);
+
+  return {
+    combineHandler: async (server) => {
+      return await new CombineHandler(server, genModule);
+    },
+  };
 };
 
 export const addServerStructure = async (folder = "public") => {

@@ -7,18 +7,30 @@
   </head>
   <body>
     <script type="module">
-      import { build } from "/builder.js";
-      import { genModule } from "/combine.js";
-      import { genCombine } from "/request.js";
-      import { serve, genCombine as genCombineIframe } from "/iframe.js";
-      import { data, addModule } from "/server.js";
-      import { cookie } from "/cookie.js";
+      import { build } from "/modules/html/builder.js";
+      import { genModule } from "/modules/combine/combine.js";
+      import { genCombine } from "/modules/combine-rest/request.js";
+      import {
+        serve,
+        genCombine as genCombineIframe,
+      } from "/modules/combine-iframe/main.js";
+      import { data, addModule } from "/modules/combine/server.js";
+      import { cookie } from "/modules/cookie-parser/main.js";
+      import { serve as wsServe } from "/modules/combine-ws/client.js";
 
       cookie.default = "; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/;";
       window.cookie = cookie;
 
       serve(data);
-      window.addModule = addModule;
+      let wsUrl = new URL(location.href);
+      wsUrl.protocol = "ws:";
+      window.wsServe = () => {
+        wsServe(data, wsUrl.origin);
+      };
+      window.addModule = async (module, name) => {
+        if (typeof module == "string") module = await import(module);
+        return addModule(module, name);
+      };
 
       window.load = async (module) => {
         return await genCombine(
@@ -26,6 +38,11 @@
           "public/" + module,
           genModule
         );
+      };
+
+      window.serve = async (module, name) => {
+        if (typeof module == "string") module = await import(module);
+        serve();
       };
 
       Element.prototype.enableCombine = async function (module) {
