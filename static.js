@@ -35,6 +35,11 @@ router.get("/*", async (req, res) => {
     res.status(200);
     let filePath = "";
     if (await (await fs.lstat(path)).isDirectory()) {
+      if (req.path[req.path.length - 1] != "/") {
+        console.log(302, "redirect", req.path + "/");
+        res.redirect(req.path + "/");
+        return;
+      }
       if (await fs.lstat(path + "/index.html")) {
         filePath = path + "/index.html";
       }
