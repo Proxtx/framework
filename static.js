@@ -66,15 +66,18 @@ const htmlFile = async (filePath, req, res) => {
   let html = parse(file);
   let d = Dom(html);
   try {
-    let server = d.getElementById("server");
-    if (server) {
-      server.parent.removeChild(server);
-      let src = server.getAttribute("src");
-      if (!imports[src]) {
-        imports[src] = await import("file://" + process.cwd() + "/" + src);
+    let serverId = d.getElementById("server");
+    try {
+      await runServerSideScript(serverId, d, req, res);
+    } catch (e) {
+      console.log(e);
+    }
+    for (let server of d.getElementsByClassName("server")) {
+      try {
+        await runServerSideScript(server, d, req, res);
+      } catch (e) {
+        console.log(e);
       }
-      let module = imports[src];
-      await module.server(d, req, res);
     }
   } catch (e) {
     console.log(e);
@@ -107,4 +110,17 @@ const replaceChar = (text, char, replace) => {
 
 export const setConfig = (newConfig) => {
   config = { ...config, ...newConfig };
+};
+
+const runServerSideScript = async (server, dom, req, res) => {
+  if (!server) return;
+  server.parent.removeChild(server);
+  let src = server.getAttribute("src");
+  let exportName = server.getAttribute("export");
+  exportName = exportName ? exportName : "server";
+  if (!imports[src]) {
+    imports[src] = await import("file://" + process.cwd() + "/" + src);
+  }
+  let module = imports[src];
+  await module[exportName](dom, req, res);
 };
