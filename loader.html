@@ -45,6 +45,15 @@
         serve();
       };
 
+      window.framework = {
+        serve: window.serve,
+        load: window.load,
+        addModule: window.addModule,
+        ws: {
+          serve: window.wsServe,
+        },
+      };
+
       Element.prototype.enableCombine = async function (module) {
         if (this.tagName != "IFRAME") return;
         if (this.contentDocument.readyState != "complete") {
