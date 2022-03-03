@@ -14,23 +14,23 @@
         serve,
         genCombine as genCombineIframe,
       } from "/modules/combine-iframe/main.js";
-      import { data, addModule } from "/modules/combine/server.js";
+      import { Combine } from "/modules/combine/server.js";
       import { cookie } from "/modules/cookie-parser/main.js";
       import { serve as wsServe } from "/modules/combine-ws/client.js";
 
       cookie.default = "; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/;";
       window.cookie = cookie;
 
-      serve(data);
+      let combineIframeInstance = new Combine();
+      let combineWsInstance = new Combine();
+
+      serve(combineIframeInstance.data);
       let wsUrl = new URL(location.href);
       wsUrl.protocol = "ws:";
       window.wsServe = () => {
-        wsServe(data, wsUrl.origin);
+        wsServe(combineWsInstance.data, wsUrl.origin);
       };
-      window.addModule = async (module, name) => {
-        if (typeof module == "string") module = await import(module);
-        return addModule(module, name);
-      };
+      window.addModule = combineIframeInstance.addModule;
 
       window.load = async (module) => {
         return await genCombine(
@@ -40,16 +40,18 @@
         );
       };
 
-      window.serve = async (module, name) => {
-        if (typeof module == "string") module = await import(module);
-        serve();
-      };
+      window.serve = serve;
 
       window.framework = {
-        serve: window.serve,
         load: window.load,
-        addModule: window.addModule,
+        iframe: {
+          combine: combineIframeInstance,
+          addModule: combineIframeInstance.addModule,
+          serve: serve,
+        },
         ws: {
+          combine: combineWsInstance,
+          addModule: combineWsInstance.addModule,
           serve: window.wsServe,
         },
       };
