@@ -54,6 +54,7 @@
           addModule: combineWsInstance.addModule,
           serve: window.wsServe,
         },
+        data: JSON.parse("$2"),
       };
 
       Element.prototype.enableCombine = async function (module) {

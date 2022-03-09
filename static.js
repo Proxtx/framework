@@ -62,19 +62,21 @@ router.get("/*", async (req, res) => {
 let imports = {};
 
 const htmlFile = async (filePath, req, res) => {
+  let loaderInstance = loader;
   let file = await fs.readFile(filePath, "utf-8");
   let html = parse(file);
   let d = Dom(html);
+  let additionalOptions = { req, res, data: {} };
   try {
     let serverId = d.getElementById("server");
     try {
-      await runServerSideScript(serverId, d, req, res);
+      await runServerSideScript(serverId, d, additionalOptions);
     } catch (e) {
       console.log(e);
     }
     for (let server of d.getElementsByClassName("server")) {
       try {
-        await runServerSideScript(server, d, req, res);
+        await runServerSideScript(server, d, additionalOptions);
       } catch (e) {
         console.log(e);
       }
@@ -82,21 +84,34 @@ const htmlFile = async (filePath, req, res) => {
   } catch (e) {
     console.log(e);
   }
-  return loader.replace(
+  loaderInstance = loaderInstance.replace(
     "$1",
-    replaceChar(
-      replaceChar(
-        JSON.stringify(d.element.innerHTML, (key, value) => {
-          if (key == "watcher") return undefined;
-          return value;
-        }),
-        "\\",
-        "\\\\"
-      ),
-      '"',
-      '\\"'
+    generateString(
+      JSON.stringify(d.element.innerHTML, (key, value) => {
+        if (key == "watcher") return undefined;
+        return value;
+      })
     )
   );
+
+  try {
+    loaderInstance = loaderInstance.replace(
+      "$2",
+      generateString(JSON.stringify(additionalOptions.data))
+    );
+  } catch (e) {
+    loaderInstance.replace("$2", "{}");
+    console.log(
+      "Framework caught an error! Your data object cant be converted to a string: ",
+      e
+    );
+  }
+
+  return loaderInstance;
+};
+
+const generateString = (string) => {
+  return replaceChar(replaceChar(string, "\\", "\\\\"), '"', '\\"');
 };
 
 const replaceChar = (text, char, replace) => {
@@ -112,7 +127,7 @@ export const setConfig = (newConfig) => {
   config = { ...config, ...newConfig };
 };
 
-const runServerSideScript = async (server, dom, req, res) => {
+const runServerSideScript = async (server, dom, additionalOptions) => {
   if (!server) return;
   server.parent.removeChild(server);
   let src = server.getAttribute("src");
@@ -122,5 +137,5 @@ const runServerSideScript = async (server, dom, req, res) => {
     imports[src] = await import("file://" + process.cwd() + "/" + src);
   }
   let module = imports[src];
-  await module[exportName](dom, req, res);
+  await module[exportName](dom, additionalOptions);
 };
