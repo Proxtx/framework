@@ -137,5 +137,9 @@ const runServerSideScript = async (server, dom, additionalOptions) => {
     imports[src] = await import("file://" + process.cwd() + "/" + src);
   }
   let module = imports[src];
-  await module[exportName](dom, additionalOptions);
+  try {
+    await module[exportName](dom, additionalOptions);
+  } catch (e) {
+    console.log(e);
+  }
 };
