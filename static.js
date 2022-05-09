@@ -10,6 +10,7 @@ let config = {
   logs: true,
   subfolder: "/static",
   parseHtml: true,
+  ignoreParseHtml: [],
 };
 
 let loader;
@@ -24,11 +25,9 @@ try {
 
 router.get("/*", async (req, res) => {
   let path = process.cwd() + config.subfolder + req.path;
-  if (
-    !resolve(path).substring(0, (process.cwd() + config.subfolder).length) ==
-    process.cwd() + config.subfolder
-  ) {
-    res.status(403);
+  if (!isSubdirectory(path, process.cwd() + config.subfolder)) {
+    console.log(resolve(path), resolve(config.subfolder));
+    res.status(403).send();
     return;
   }
   try {
@@ -46,7 +45,12 @@ router.get("/*", async (req, res) => {
     } else {
       filePath = path;
     }
-    if (extname(filePath) == ".html" && config.parseHtml) {
+    let noParseFile = false;
+    for (let i of config.ignoreParseHtml) {
+      if (isSubdirectory(filePath, process.cwd() + config.subfolder + i))
+        noParseFile = true;
+    }
+    if (extname(filePath) == ".html" && config.parseHtml && !noParseFile) {
       res.send(await htmlFile(filePath, req, res));
       if (config.logs) console.log(200, "html", filePath);
       return;
@@ -138,4 +142,8 @@ const runServerSideScript = async (server, dom, additionalOptions) => {
   }
   let module = imports[src];
   await module[exportName](dom, additionalOptions);
+};
+
+const isSubdirectory = (path, folder) => {
+  return resolve(path).substring(0, resolve(folder).length) == resolve(folder);
 };
