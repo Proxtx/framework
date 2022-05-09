@@ -14,6 +14,7 @@ export const listen = async (port) => {
   const app = express();
   let result = await setup(app);
   result.server = app.listen(port);
+  result.app = app;
   return result;
 };
 
