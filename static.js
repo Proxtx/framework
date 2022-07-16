@@ -9,8 +9,8 @@ export const router = Router();
 let config = {
   logs: true,
   subfolder: "/static",
-  parseHtml: true,
   ignoreParseHtml: [],
+  customScriptFileExtensions: [".html"],
 };
 
 let loader;
@@ -50,7 +50,11 @@ router.get("/*", async (req, res) => {
       if (isSubdirectory(filePath, process.cwd() + config.subfolder + i))
         noParseFile = true;
     }
-    if (extname(filePath) == ".html" && config.parseHtml && !noParseFile) {
+    if (
+      config.customScriptFileExtensions.includes(extname(filePath)) &&
+      !noParseFile
+    ) {
+      console.log("yep");
       res.send(await htmlFile(filePath, req, res));
       if (config.logs) console.log(200, "html", filePath);
       return;
