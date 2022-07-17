@@ -33,7 +33,11 @@ router.get("/*", async (req, res) => {
   try {
     res.status(200);
     let filePath = "";
-    if (await (await fs.lstat(path)).isDirectory()) {
+    let isDir = false;
+    try {
+      if (await (await fs.lstat(path)).isDirectory()) isDir = true;
+    } catch (e) {}
+    if (isDir) {
       if (req.path[req.path.length - 1] != "/") {
         console.log(302, "redirect", req.path + "/");
         res.redirect(req.path + "/");
@@ -73,6 +77,8 @@ let imports = {};
 
 const htmlFile = async (filePath, req, res) => {
   let loaderInstance = loader;
+  if (filePath[filePath.length - 1] == "/")
+    filePath = filePath.substring(0, filePath.length - 1);
   let file = await fs.readFile(filePath, "utf-8");
   let html = parse(file);
   let d = Dom(html);
