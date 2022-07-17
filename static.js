@@ -54,8 +54,11 @@ router.get("/*", async (req, res) => {
       config.customScriptFileExtensions.includes(extname(filePath)) &&
       !noParseFile
     ) {
-      res.send(await htmlFile(filePath, req, res));
-      if (config.logs) console.log(200, "html", filePath);
+      let newHtmlFile = await htmlFile(filePath, req, res);
+      if (!res.headersSent) {
+        res.send(newHtmlFile);
+        if (config.logs) console.log(200, "html", filePath);
+      }
       return;
     }
     res.sendFile(filePath);
