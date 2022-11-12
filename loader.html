@@ -59,9 +59,10 @@
 
       Element.prototype.enableCombine = async function (module) {
         if (this.tagName != "IFRAME") return;
-        while (!this.postMessage) {
+        while (!this.contentWindow?.postMessage) {
           await new Promise((r) => setTimeout(r, 100));
         }
+        await new Promise((r) => this.addEventListener("load", r));
         this.combine = await genCombineIframe(
           module,
           genModule,
