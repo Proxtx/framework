@@ -1,6 +1,6 @@
 {
   "name": "@proxtx/framework",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "description": "",
   "type": "module",
   "main": "main.js",
@@ -21,7 +21,7 @@
     "@proxtx/combine": "^3.1.4",
     "@proxtx/combine-iframe": "^1.0.4",
     "@proxtx/combine-rest": "^1.0.4",
-    "@proxtx/combine-ws": "^1.1.5",
+    "@proxtx/combine-ws": "^1.1.6",
     "@proxtx/cookie-parser": "^1.0.2",
     "@proxtx/dom": "^1.1.4",
     "@proxtx/html": "^1.0.8",
