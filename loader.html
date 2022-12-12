@@ -27,8 +27,8 @@
       serve(combineIframeInstance.data);
       let wsUrl = new URL(location.href);
       wsUrl.protocol = location.protocol == "https:" ? "wss:" : "ws:";
-      window.wsServe = () => {
-        wsServe(combineWsInstance.data, wsUrl.origin);
+      window.wsServe = async () => {
+        return await wsServe(combineWsInstance.data, wsUrl.origin);
       };
       window.addModule = combineIframeInstance.addModule;
 
